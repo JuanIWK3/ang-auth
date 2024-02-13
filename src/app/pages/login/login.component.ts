@@ -36,8 +36,6 @@ export class LoginComponent {
       .subscribe((data) => {
         console.log(data);
 
-        localStorage.setItem('accessToken', data.accessToken);
-
         this.cookies.set('accessToken', data.accessToken);
 
         this.router.navigate(['/profile']);

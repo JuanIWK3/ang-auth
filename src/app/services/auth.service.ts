@@ -11,9 +11,10 @@ export class AuthService {
   private http = inject(HttpClient);
   private cookies = inject(CookieService);
   private router = inject(Router);
+  private api = 'http://localhost:6969/api';
 
   register(email: string, password: string): Observable<any> {
-    return this.http.post('http://localhost:6969/api/auth/signup', {
+    return this.http.post(`${this.api}/auth/signup`, {
       email,
       password,
     });
@@ -24,13 +25,10 @@ export class AuthService {
       callbackUrl = '/';
     }
 
-    return this.http.post<{ accessToken: string }>(
-      'http://localhost:6969/api/auth/signin',
-      {
-        email,
-        password,
-      }
-    );
+    return this.http.post<{ accessToken: string }>(`${this.api}/auth/signin`, {
+      email,
+      password,
+    });
   }
 
   isLogged(): boolean {
@@ -43,7 +41,7 @@ export class AuthService {
   }
 
   getProfile(): any {
-    return this.http.get('http://localhost:6969/api/profile', {
+    return this.http.get(`${this.api}/auth/profile`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
