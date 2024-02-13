@@ -32,18 +32,18 @@ export class AuthService {
   }
 
   isLogged(): boolean {
-    return !!this.cookies.get('accessToken');
+    return !!this.cookies.get('access-token');
   }
 
   logout(): void {
-    this.cookies.delete('accessToken');
+    this.cookies.delete('access-token');
     this.router.navigate(['/login']);
   }
 
   getProfile(): any {
     return this.http.get(`${this.api}/auth/profile`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${localStorage.getItem('access-token')}`,
       },
     });
   }

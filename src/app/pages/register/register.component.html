@@ -2,8 +2,9 @@
   <form
     [formGroup]="registerForm"
     (ngSubmit)="register()"
-    class="flex flex-col gap-4"
+    class="flex flex-col gap-4 shadow p-8"
   >
+  <h1 class="font-bold text-xl text-center">Register</h1>
     <input
       formControlName="email"
       class="border px-4 py-2 rounded"

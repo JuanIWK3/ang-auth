@@ -1,44 +1,64 @@
-import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CookieService } from 'ngx-cookie-service';
+import { catchError, retry, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterModule, ReactiveFormsModule],
+  imports: [RouterModule, ReactiveFormsModule, ToastrModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   user: any;
   authService = inject(AuthService);
   router = inject(Router);
   cookies = inject(CookieService);
+  toastr = inject(ToastrService);
+
+  ngOnInit(): void {
+    if (this.authService.isLogged()) {
+      this.router.navigate(['/']);
+    }
+  }
 
   loginForm = new FormGroup({
-    email: new FormControl(''),
-    password: new FormControl(''),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('a', [
+      Validators.required,
+      Validators.minLength(6),
+    ]),
   });
 
   login() {
     if (!this.loginForm.valid) {
-      console.log('Invalid form');
+      alert('Invalid form');
 
       return;
     }
 
-    console.log(this.loginForm.value);
-
     this.authService
       .login(this.loginForm.value.email!, this.loginForm.value.password!)
-      .subscribe((data) => {
-        console.log(data);
-
-        this.cookies.set('accessToken', data.accessToken);
-
-        this.router.navigate(['/profile']);
+      .pipe(retry(3))
+      .subscribe({
+        error: ({ error }) => {
+          this.toastr.error(error.message);
+        },
+        next: (data) => {
+          this.cookies.set('access-token', data.accessToken);
+          this.router.navigate(['/']);
+        },
       });
   }
 }
